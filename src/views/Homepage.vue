@@ -77,7 +77,7 @@
           :key="tab.name"
           class="nav-tab"
           :class="{ 'nav-tab-active': activeTab === tab.name }"
-          @click="activeTab = tab.name"
+          @click="handleTabClick(tab.name)"
       >
         <img :src="tab.icon" :alt="tab.name" class="nav-icon" />
       </button>
@@ -87,8 +87,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-// ── Asset imports (Vite spracuje správne cesty) ───────────────
+// ROUTER
+const router = useRouter()
+
+// ── Asset imports ─────────────────────────────
 import pfpImg      from '@/assets/pfp.png'
 import flameImg    from '@/assets/flame.png'
 import settingsImg from '@/assets/settings.png'
@@ -98,36 +102,57 @@ import foodImg     from '@/assets/food.png'
 import profileImg  from '@/assets/profile.png'
 
 const assets = {
-  pfp:      pfpImg,
-  flame:    flameImg,
+  pfp: pfpImg,
+  flame: flameImg,
   settings: settingsImg,
 }
 
 const userName = ref('Levi')
 const activeTab = ref('home')
 
+// NAVIGATION
+function handleTabClick(tabName) {
+
+  activeTab.value = tabName
+
+  // WORKOUT PAGE
+  if (tabName === 'workout') {
+    router.push('/workoutpage')
+  }
+
+  // HOME PAGE
+  if (tabName === 'home') {
+    router.push('/home')
+  }
+}
+
 const navTabs = [
   { name: 'workout', icon: workoutImg },
-  { name: 'home',    icon: homeImg },
-  { name: 'food',    icon: foodImg },
+  { name: 'home', icon: homeImg },
+  { name: 'food', icon: foodImg },
   { name: 'profile', icon: profileImg },
 ]
 
-// ── Dátum / kalendár ─────────────────────────────────────────
-const today = new Date(2026, 2, 16) // 16. marca 2026
+// ── DATE / CALENDAR ───────────────────────────
+const today = new Date(2026, 2, 16)
 const weekOffset = ref(0)
 
 const formattedDate = computed(() => {
   const d = new Date(today)
   d.setDate(d.getDate() + weekOffset.value * 7)
+
   return d.toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'long', year: 'numeric', weekday: 'long'
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    weekday: 'long'
   })
 })
 
 const weekDays = computed(() => {
   const base = new Date(today)
   base.setDate(base.getDate() + weekOffset.value * 7)
+
   const mon = new Date(base)
   mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7))
 
@@ -137,40 +162,53 @@ const weekDays = computed(() => {
   return dayNames.map((name, i) => {
     const d = new Date(mon)
     d.setDate(mon.getDate() + i)
+
     const isToday = d.toDateString() === today.toDateString()
+
     return {
       dayName: name,
-      dayNum:  d.getDate(),
-      date:    d.toDateString(),
+      dayNum: d.getDate(),
+      date: d.toDateString(),
       isToday,
-      status:  isToday ? 'today' : statuses[i],
+      status: isToday ? 'today' : statuses[i],
     }
   })
 })
 
-function prevWeek() { weekOffset.value-- }
-function nextWeek() { weekOffset.value++ }
-function selectDay(day) { console.log('Selected', day.date) }
-function goToSettings() { console.log('Settings') }
+function prevWeek() {
+  weekOffset.value--
+}
 
-// ── Štatistiky ────────────────────────────────────────────────
+function nextWeek() {
+  weekOffset.value++
+}
+
+function selectDay(day) {
+  console.log('Selected', day.date)
+}
+
+function goToSettings() {
+  console.log('Settings')
+}
+
+// ── WEEK STATS ────────────────────────────────
 const weekStats = ref([
   { label: 'Duration', value: '275 min' },
   { label: 'Workouts', value: '8' },
-  { label: 'Sets',     value: '235' },
-  { label: 'Lifted',   value: '35 kg' },
-  { label: 'Burn',     value: '9999 kcal' },
-  { label: 'Streak',   value: '3' },
+  { label: 'Sets', value: '235' },
+  { label: 'Lifted', value: '35 kg' },
+  { label: 'Burn', value: '9999 kcal' },
+  { label: 'Streak', value: '3' },
 ])
 
-// ── Svalové skupiny ───────────────────────────────────────────
+// ── MUSCLE GROUPS ─────────────────────────────
 const muscleGroups = ref([
-  { name: 'Legs',      sets: 3  },
-  { name: 'Shoulders', sets: 5  },
-  { name: 'Arms',      sets: 19 },
-  { name: 'Back',      sets: 17 },
-  { name: 'Chest',     sets: 12 },
-  { name: 'Core',      sets: 0  },
+  { name: 'Legs', sets: 3 },
+  { name: 'Shoulders', sets: 5 },
+  { name: 'Arms', sets: 19 },
+  { name: 'Back', sets: 17 },
+  { name: 'Chest', sets: 12 },
+  { name: 'Core', sets: 0 },
 ])
 </script>
 

@@ -3,14 +3,28 @@
 
     <!-- TOP BAR -->
     <header class="topbar">
-      <button class="back">←</button>
+
+      <!-- BACK BUTTON -->
+      <button class="back" @click="goBack">
+        ←
+      </button>
+
       <h1>Workout</h1>
+
     </header>
 
     <!-- SUB HEADER -->
     <div class="subheader">
-      <input class="routine-name" v-model="workoutName" />
-      <div class="timer">00:00</div>
+
+      <input
+        class="routine-name"
+        v-model="workoutName"
+      />
+
+      <div class="timer">
+        00:00
+      </div>
+
     </div>
 
     <!-- CONTENT -->
@@ -26,6 +40,7 @@
         <!-- EXERCISE HEADER -->
         <div class="exercise-header">
 
+          <!-- EXERCISE NAME -->
           <input
             class="exercise-title"
             v-model="ex.name"
@@ -43,27 +58,48 @@
 
         <!-- GRID HEADER -->
         <div class="grid header">
+
           <div>SET</div>
           <div>PREV</div>
           <div>KG</div>
           <div>REPS</div>
           <div></div>
+
         </div>
 
-        <!-- SETS -->
+        <!-- SET ROWS -->
         <div
           class="grid row"
           v-for="(set, s) in ex.sets"
           :key="s"
         >
-          <div>{{ s + 1 }}</div>
 
-          <div class="locked">{{ set.prev }}</div>
+          <!-- SET NUMBER -->
+          <div>
+            {{ s + 1 }}
+          </div>
 
-          <input type="number" v-model="set.kg" />
-          <input type="number" v-model="set.reps" />
+          <!-- PREVIOUS -->
+          <div class="locked">
+            {{ set.prev }}
+          </div>
 
+          <!-- KG -->
+          <input
+            type="number"
+            v-model="set.kg"
+          />
+
+          <!-- REPS -->
+          <input
+            type="number"
+            v-model="set.reps"
+          />
+
+          <!-- ACTION BUTTONS -->
           <div class="actions">
+
+            <!-- CHECK -->
             <button
               class="check"
               :class="{ done: set.done }"
@@ -72,24 +108,33 @@
               ✓
             </button>
 
+            <!-- DELETE SET -->
             <button
               class="delete"
               @click="deleteSet(i, s)"
             >
               🗑
             </button>
+
           </div>
+
         </div>
 
         <!-- ADD SET -->
-        <button class="add-set" @click="addSet(i)">
+        <button
+          class="add-set"
+          @click="addSet(i)"
+        >
           Add set +
         </button>
 
       </div>
 
       <!-- ADD EXERCISE -->
-      <button class="add-exercise" @click="addExercise">
+      <button
+        class="add-exercise"
+        @click="addExercise"
+      >
         Add exercise +
       </button>
 
@@ -100,22 +145,52 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+// BACK BUTTON
+function goBack() {
+  router.back()
+}
+
+// WORKOUT NAME
 const workoutName = ref('Lower Body Routine')
 
+// EXERCISES
 const exercises = ref([
   {
     name: 'Squat',
     sets: [
-      { prev: '60 × 8', kg: 60, reps: 8, done: false },
-      { prev: '60 × 8', kg: 60, reps: 8, done: false }
+      {
+        prev: '60 × 8',
+        kg: 60,
+        reps: 8,
+        done: false
+      },
+      {
+        prev: '60 × 8',
+        kg: 60,
+        reps: 8,
+        done: false
+      }
     ]
   },
   {
     name: 'Lunges',
     sets: [
-      { prev: '40 × 10', kg: 40, reps: 10, done: false },
-      { prev: '-', kg: 0, reps: 0, done: false }
+      {
+        prev: '40 × 10',
+        kg: 40,
+        reps: 10,
+        done: false
+      },
+      {
+        prev: '-',
+        kg: 0,
+        reps: 0,
+        done: false
+      }
     ]
   }
 ])
@@ -140,8 +215,18 @@ function addExercise() {
   exercises.value.push({
     name: 'New Exercise',
     sets: [
-      { prev: '-', kg: 0, reps: 0, done: false },
-      { prev: '-', kg: 0, reps: 0, done: false }
+      {
+        prev: '-',
+        kg: 0,
+        reps: 0,
+        done: false
+      },
+      {
+        prev: '-',
+        kg: 0,
+        reps: 0,
+        done: false
+      }
     ]
   })
 }
@@ -176,6 +261,7 @@ function deleteExercise(index) {
   margin: auto;
 }
 
+/* BACK BUTTON */
 .back {
   background: none;
   border: none;
@@ -193,6 +279,7 @@ function deleteExercise(index) {
   font-weight: 600;
 }
 
+/* WORKOUT NAME */
 .routine-name {
   border: none;
   background: transparent;
@@ -202,6 +289,7 @@ function deleteExercise(index) {
   outline: none;
 }
 
+/* TIMER */
 .timer {
   font-weight: 700;
   font-family: sans-serif;
@@ -223,7 +311,7 @@ function deleteExercise(index) {
   color: white;
 }
 
-/* HEADER ROW */
+/* EXERCISE HEADER */
 .exercise-header {
   display: flex;
   justify-content: space-between;
@@ -264,6 +352,7 @@ function deleteExercise(index) {
   font-size: 13px;
 }
 
+/* HEADER */
 .header {
   font-weight: bold;
   text-transform: uppercase;
@@ -279,7 +368,7 @@ function deleteExercise(index) {
   text-align: center;
 }
 
-/* LOCKED */
+/* PREVIOUS BOX */
 .locked {
   background: #3b1414;
   padding: 6px;
@@ -294,7 +383,7 @@ function deleteExercise(index) {
   justify-content: center;
 }
 
-/* CHECK */
+/* CHECK BUTTON */
 .check {
   width: 26px;
   height: 26px;

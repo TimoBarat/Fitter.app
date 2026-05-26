@@ -12,6 +12,7 @@ const Signin = () => import('../views/SignInPage.vue')
 const Workoutpage = () => import('../views/WorkoutPage.vue')
 const StartWorkout = () => import('../views/StartWorkoutView.vue')
 const Homepage = () => import('../views/Homepage.vue')
+const NutritionView = () => import('../views/NutritionView.vue')
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -19,13 +20,15 @@ const routes = [
   { path: '/intropage', name: 'Intropage', component: Intropage },
   { path: '/signin', name: 'Signin', component: Signin },
   { path: '/workoutpage', name: 'Workoutpage', component: Workoutpage },
-  { path: '/startworkout', name: 'StartWorkout', component: StartWorkout }
+  { path: '/startworkout', name: 'StartWorkout', component: StartWorkout },
   { path: '/home', name: 'Homepage', component: Homepage },
+  { path: '/nutrition', name: 'NutritionPage', component: NutritionView },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
 
 export default router
