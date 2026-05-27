@@ -45,6 +45,12 @@
           <h1>My Workout Routines</h1>
           <span class="search-icon">⌕</span>
         </div>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search workouts..."
+          class="workout-search"
+        />
 
         <button class="main-btn" @click="startEmptyWorkout">
           Start Workout
@@ -59,7 +65,7 @@
 
         <div
           class="workout-card"
-          v-for="(workout, index) in workouts"
+          v-for="(workout, index) in filteredWorkouts"
           :key="workout.id"
         >
 
@@ -133,9 +139,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+const search = ref('')
 const router = useRouter()
 
 // ASSETS
@@ -176,6 +183,14 @@ const workouts = ref([
   { id: 2, name: 'Push Day' },
   { id: 3, name: 'Full Body' }
 ])
+
+const filteredWorkouts = computed(() => {
+  if (!search.value) return workouts.value
+
+  return workouts.value.filter(w =>
+    w.name.toLowerCase().includes(search.value.toLowerCase())
+  )
+})
 
 const openMenu = ref(null)
 
@@ -612,5 +627,16 @@ function deleteWorkout(index) {
 
 .menu-item.danger {
   color: #ff4d4d;
+}
+
+.workout-search {
+  width: 100%;
+  margin: 10px 0 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+  outline: none;
 }
 </style>

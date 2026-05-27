@@ -67,15 +67,11 @@
           <!-- DAYS -->
           <div
             v-for="day in month.days"
-            :key="day.date"
+            :key="day.date + month.name"
             class="day"
-            :class="day.state"
-          >
-            <span v-if="day.state !== 'STREAK_COMPLETED'">
-              {{ day.date }}
-            </span>
-
-            <span v-else class="flame">🔥</span>
+            :class="{ today: day.isToday }"
+            >
+            <span>{{ day.date }}</span>
           </div>
 
         </div>
@@ -88,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -101,49 +97,58 @@ function goHome() {
 
 const weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
-/*
-STATE:
-DEFAULT
-STREAK_COMPLETED
-TARGET_HIGHLIGHT
-*/
+/* =========================
+   4 MONTHS: CURRENT + 3 PAST (NEWEST ON TOP)
+========================= */
 
-const months = ref([
-  {
-    name: 'January 2026',
-    offset: 3,
-    days: generateMonth(31, 'streak')
-  },
-  {
-    name: 'February 2026',
-    offset: 6,
-    days: generateMonth(28, 'mixed')
-  }
-])
+const today = new Date()
+today.setHours(0, 0, 0, 0)
 
-function generateMonth(daysCount, type) {
-  const arr = []
+const currentYear = today.getFullYear()
+const currentMonth = today.getMonth()
 
-  for (let i = 1; i <= daysCount; i++) {
+function buildMonth(year, month) {
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
 
-    let state = 'DEFAULT'
+  const offset = (firstDay.getDay() + 6) % 7
 
-    if (type === 'streak' && i < 25) {
-      state = 'STREAK_COMPLETED'
-    }
+  const days = []
 
-    if (type === 'mixed' && i === 17) {
-      state = 'TARGET_HIGHLIGHT'
-    }
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateObj = new Date(year, month, d)
+    dateObj.setHours(0, 0, 0, 0)
 
-    arr.push({
-      date: i,
-      state
+    days.push({
+      date: d,
+      isToday: dateObj.getTime() === today.getTime()
     })
   }
 
-  return arr
+  return {
+    name: firstDay.toLocaleString('en-GB', {
+      month: 'long',
+      year: 'numeric'
+    }),
+    offset,
+    days
+  }
 }
+
+const months = computed(() => {
+  const result = []
+
+  // CURRENT MONTH FIRST (NEWEST ON TOP)
+  result.push(buildMonth(currentYear, currentMonth))
+
+  // 3 PREVIOUS MONTHS
+  for (let i = 1; i <= 3; i++) {
+    const date = new Date(currentYear, currentMonth - i, 1)
+    result.push(buildMonth(date.getFullYear(), date.getMonth()))
+  }
+
+  return result
+})
 </script>
 
 <style scoped>
@@ -289,5 +294,10 @@ function generateMonth(daysCount, type) {
 
 .flame {
   font-size: 14px;
+}
+.today {
+  border: 2px solid #e74c3c;
+  background: rgba(231, 76, 60, 0.2);
+  font-weight: bold;
 }
 </style>

@@ -32,12 +32,12 @@
       </div>
 
       <!-- Week calendar -->
-      <div class="calendar-section" @click="goStreak">
-        <p class="calendar-date">{{ formattedDate }}</p>
+      <div class="calendar-section">
+        <p class="calendar-date" @click="goStreak" >{{ formattedDate }}</p>
         <div class="calendar-row">
           <button class="nav-arrow" @click="prevWeek">&#8249;</button>
 
-          <div class="days-strip">
+          <div class="days-strip" @click="goStreak">
             <div
               v-for="day in weekDays"
               :key="day.date"
@@ -52,14 +52,7 @@
               <span class="day-label">{{ day.dayName }}</span>
               <span class="day-number">{{ day.dayNum }}</span>
 
-              <span class="day-icon">
-                <img
-                  v-if="day.status === 'done' || day.status === 'today'"
-                  :src="assets.flame"
-                  class="day-status-icon"
-                />
-                <span v-else-if="day.status === 'missed'">✕</span>
-              </span>
+              <span class="day-icon"></span>
             </div>
           </div>
 
@@ -79,7 +72,7 @@
       <!-- Muscles -->
       <div class="section-title">Targeted muscle groups</div>
       <div class="muscles-grid">
-        <div class="muscle-card" v-for="muscle in muscleGroups" :key="muscle.name">
+        <div class="muscle-card" v-for="muscle in muscleGroups" :key="muscle.name" @click = "handleMuscleClick(muscle.name)">
           <span class="muscle-label">{{ muscle.name }}</span>
           <span class="muscle-sets">{{ muscle.sets }} sets</span>
         </div>
@@ -159,8 +152,15 @@ function goStreak() {
   router.push('/streak')
 }
 
+function handleMuscleClick(name) {
+  if (name === 'Legs') {
+    router.push('/eastereggs')
+  }
+}
+
 // calendar (unchanged)
-const today = new Date(2026, 2, 16)
+const today = new Date()
+today.setHours(0, 0, 0, 0)
 const weekOffset = ref(0)
 
 const formattedDate = computed(() => {
@@ -194,7 +194,7 @@ const weekDays = computed(() => {
       dayNum: d.getDate(),
       date: d.toDateString(),
       isToday: d.toDateString() === today.toDateString(),
-      status: statuses[i],
+      status: statuses[i],  
     }
   })
 })

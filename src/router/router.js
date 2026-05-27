@@ -17,6 +17,8 @@ const ProfilePage = () => import('../views/ProfilePage.vue')
 const SettingsPage = () => import('../views/SettingsPage.vue')
 const MealsSelection = () => import('../views/MealsSelection.vue')
 const StreakPage = () => import('../views/StreakPage.vue')
+const NutritionBreakdown = () => import('../views/NutritionBreakdown.vue')
+const EasterEgg = () => import('../views/EasterEgg.vue')
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -30,7 +32,9 @@ const routes = [
   { path: '/profile', name: 'Profile', component: ProfilePage},
   { path: '/settings', name: 'Settings', component: SettingsPage},
   { path: '/mealsselection', name: 'MealsSelection', component: MealsSelection },
-  { path: '/streak', name: 'Streak', component: StreakPage }
+  { path: '/streak', name: 'Streak', component: StreakPage },
+  { path: '/nutritionbreakdown', name: 'NutritionBreakdown', component: NutritionBreakdown },
+  { path: '/eastereggs', name: 'EasterEgg', component: EasterEgg }
 ]
 
 const router = createRouter({

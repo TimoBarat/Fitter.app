@@ -24,7 +24,7 @@
       />
 
       <div class="timer">
-        00:00
+        {{ timerDisplay }}
       </div>
 
     </div>
@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -137,21 +137,54 @@ function goBack() {
   router.back()
 }
 
+/* WORKOUT DATA */
 const workoutName = ref('')
-
 const exercises = ref([])
 
-/* ADD EXERCISE */
+/* =========================
+   ⏱ TIMER LOGIC (NEW)
+========================= */
+
+const startTime = ref(null)
+const elapsed = ref(0)
+let interval = null
+
+function startTimer() {
+  startTime.value = Date.now()
+
+  interval = setInterval(() => {
+    elapsed.value = Date.now() - startTime.value
+  }, 1000)
+}
+
+const timerDisplay = computed(() => {
+  const totalSeconds = Math.floor(elapsed.value / 1000)
+
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+})
+
+onMounted(() => {
+  startTimer()
+})
+
+onUnmounted(() => {
+  if (interval) clearInterval(interval)
+})
+
+/* =========================
+   EXERCISE FUNCTIONS
+========================= */
+
 function addExercise() {
   exercises.value.push({
     name: 'New Exercise',
-    sets: [
-      { prev: '-', kg: 0, reps: 0, done: false }
-    ]
+    sets: [{ prev: '-', kg: 0, reps: 0, done: false }]
   })
 }
 
-/* ADD SET */
 function addSet(i) {
   exercises.value[i].sets.push({
     prev: '-',
@@ -161,7 +194,6 @@ function addSet(i) {
   })
 }
 
-/* DELETE */
 function deleteSet(ex, s) {
   exercises.value[ex].sets.splice(s, 1)
 }
@@ -170,11 +202,9 @@ function deleteExercise(i) {
   exercises.value.splice(i, 1)
 }
 
-/* FINISH WORKOUT (BACKEND READY) */
 function finishWorkout() {
   console.log('Workout finished')
   router.push('/home')
-  // backend later
 }
 </script>
 
