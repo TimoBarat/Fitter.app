@@ -4,12 +4,13 @@
     <!-- TOP BAR -->
     <header class="topbar">
 
-      <!-- BACK BUTTON -->
       <button class="back" @click="goBack">
         ←
       </button>
 
-      <h1>Workout</h1>
+      <h1>{{ workoutName || 'Workout' }}</h1>
+
+      <div class="spacer"></div>
 
     </header>
 
@@ -19,6 +20,7 @@
       <input
         class="routine-name"
         v-model="workoutName"
+        placeholder="Workout name..."
       />
 
       <div class="timer">
@@ -30,23 +32,27 @@
     <!-- CONTENT -->
     <main class="content">
 
+      <!-- EMPTY STATE -->
+      <div v-if="exercises.length === 0" class="empty">
+        <h2>No exercises yet</h2>
+        <p>Start building your workout below</p>
+      </div>
+
       <!-- EXERCISES -->
       <div
-        class="exercise-card"
         v-for="(ex, i) in exercises"
         :key="i"
+        class="exercise-card"
       >
 
-        <!-- EXERCISE HEADER -->
+        <!-- HEADER -->
         <div class="exercise-header">
 
-          <!-- EXERCISE NAME -->
           <input
             class="exercise-title"
             v-model="ex.name"
           />
 
-          <!-- DELETE EXERCISE -->
           <button
             class="delete-exercise"
             @click="deleteExercise(i)"
@@ -56,50 +62,31 @@
 
         </div>
 
-        <!-- GRID HEADER -->
+        <!-- TABLE HEADER -->
         <div class="grid header">
-
           <div>SET</div>
           <div>PREV</div>
           <div>KG</div>
           <div>REPS</div>
           <div></div>
-
         </div>
 
         <!-- SET ROWS -->
         <div
-          class="grid row"
           v-for="(set, s) in ex.sets"
           :key="s"
+          class="grid row"
         >
 
-          <!-- SET NUMBER -->
-          <div>
-            {{ s + 1 }}
-          </div>
+          <div class="set-num">{{ s + 1 }}</div>
 
-          <!-- PREVIOUS -->
-          <div class="locked">
-            {{ set.prev }}
-          </div>
+          <div class="locked">{{ set.prev }}</div>
 
-          <!-- KG -->
-          <input
-            type="number"
-            v-model="set.kg"
-          />
+          <input class="cell" type="number" v-model="set.kg" />
+          <input class="cell" type="number" v-model="set.reps" />
 
-          <!-- REPS -->
-          <input
-            type="number"
-            v-model="set.reps"
-          />
-
-          <!-- ACTION BUTTONS -->
           <div class="actions">
 
-            <!-- CHECK -->
             <button
               class="check"
               :class="{ done: set.done }"
@@ -108,7 +95,6 @@
               ✓
             </button>
 
-            <!-- DELETE SET -->
             <button
               class="delete"
               @click="deleteSet(i, s)"
@@ -120,22 +106,20 @@
 
         </div>
 
-        <!-- ADD SET -->
-        <button
-          class="add-set"
-          @click="addSet(i)"
-        >
-          Add set +
+        <button class="add-set" @click="addSet(i)">
+          + Add set
         </button>
 
       </div>
 
       <!-- ADD EXERCISE -->
-      <button
-        class="add-exercise"
-        @click="addExercise"
-      >
-        Add exercise +
+      <button class="add-exercise" @click="addExercise">
+        + Add exercise
+      </button>
+
+      <!-- FINISH WORKOUT -->
+      <button class="finish-workout" @click="finishWorkout">
+        Finish workout
       </button>
 
     </main>
@@ -149,55 +133,27 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// BACK BUTTON
 function goBack() {
   router.back()
 }
 
-// WORKOUT NAME
-const workoutName = ref('Lower Body Routine')
+const workoutName = ref('')
 
-// EXERCISES
-const exercises = ref([
-  {
-    name: 'Squat',
-    sets: [
-      {
-        prev: '60 × 8',
-        kg: 60,
-        reps: 8,
-        done: false
-      },
-      {
-        prev: '60 × 8',
-        kg: 60,
-        reps: 8,
-        done: false
-      }
-    ]
-  },
-  {
-    name: 'Lunges',
-    sets: [
-      {
-        prev: '40 × 10',
-        kg: 40,
-        reps: 10,
-        done: false
-      },
-      {
-        prev: '-',
-        kg: 0,
-        reps: 0,
-        done: false
-      }
-    ]
-  }
-])
+const exercises = ref([])
 
-// ADD SET
-function addSet(index) {
-  exercises.value[index].sets.push({
+/* ADD EXERCISE */
+function addExercise() {
+  exercises.value.push({
+    name: 'New Exercise',
+    sets: [
+      { prev: '-', kg: 0, reps: 0, done: false }
+    ]
+  })
+}
+
+/* ADD SET */
+function addSet(i) {
+  exercises.value[i].sets.push({
     prev: '-',
     kg: 0,
     reps: 0,
@@ -205,175 +161,170 @@ function addSet(index) {
   })
 }
 
-// DELETE SET
-function deleteSet(exIndex, setIndex) {
-  exercises.value[exIndex].sets.splice(setIndex, 1)
+/* DELETE */
+function deleteSet(ex, s) {
+  exercises.value[ex].sets.splice(s, 1)
 }
 
-// ADD EXERCISE
-function addExercise() {
-  exercises.value.push({
-    name: 'New Exercise',
-    sets: [
-      {
-        prev: '-',
-        kg: 0,
-        reps: 0,
-        done: false
-      },
-      {
-        prev: '-',
-        kg: 0,
-        reps: 0,
-        done: false
-      }
-    ]
-  })
+function deleteExercise(i) {
+  exercises.value.splice(i, 1)
 }
 
-// DELETE EXERCISE
-function deleteExercise(index) {
-  exercises.value.splice(index, 1)
+/* FINISH WORKOUT (BACKEND READY) */
+function finishWorkout() {
+  console.log('Workout finished')
+  router.push('/home')
+  // backend later
 }
 </script>
 
 <style scoped>
 .page {
   min-height: 100vh;
-  background: #d7b2b2;
+  background: #1a1a1a;
+  color: white;
   display: flex;
   flex-direction: column;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 /* TOP BAR */
 .topbar {
-  background: #5b1f1f;
-  padding: 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: white;
+  justify-content: space-between;
+  padding: 16px;
+  background: #141414;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.topbar h1 {
-  font-family: Georgia, serif;
-  font-size: 22px;
-  margin: auto;
-}
-
-/* BACK BUTTON */
 .back {
   background: none;
   border: none;
-  color: white;
+  color: #e74c3c;
   font-size: 26px;
   cursor: pointer;
 }
 
-/* SUB HEADER */
+.topbar h1 {
+  font-size: 18px;
+  color: #e74c3c;
+}
+
+.spacer {
+  width: 30px;
+}
+
+/* SUBHEADER */
 .subheader {
   display: flex;
   justify-content: space-between;
-  padding: 14px 18px;
-  color: #5b1f1f;
-  font-weight: 600;
+  padding: 14px 16px;
+  color: #e74c3c;
 }
 
-/* WORKOUT NAME */
 .routine-name {
-  border: none;
   background: transparent;
-  font-size: 18px;
-  font-weight: 600;
-  color: #5b1f1f;
+  border: none;
+  color: white;
+  font-size: 16px;
   outline: none;
 }
 
-/* TIMER */
 .timer {
-  font-weight: 700;
-  font-family: sans-serif;
+  font-weight: bold;
+  color: #aaa;
 }
 
 /* CONTENT */
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 10px 16px 120px;
+  padding: 12px 12px 120px;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  margin-top: 60px;
+  color: #777;
 }
 
 /* CARD */
 .exercise-card {
-  background: #6e2a2a;
-  border-radius: 24px;
-  padding: 16px;
-  margin-bottom: 16px;
-  color: white;
+  background: #222;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
 }
 
-/* EXERCISE HEADER */
+/* HEADER */
 .exercise-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-/* EXERCISE TITLE */
 .exercise-title {
   flex: 1;
-  background: #e7bcbc;
-  color: #2a0f0f;
-  padding: 10px 14px;
-  border-radius: 999px;
+  background: #333;
   border: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: white;
   outline: none;
-  font-weight: 600;
 }
 
-/* DELETE EXERCISE */
 .delete-exercise {
-  margin-left: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+  margin-left: 8px;
+  background: transparent;
   border: none;
-  background: #2b0b0b;
-  color: white;
+  color: #e74c3c;
+  font-size: 18px;
   cursor: pointer;
 }
 
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 60px;
+  grid-template-columns: 40px 1fr 60px 60px 60px;
   gap: 8px;
   align-items: center;
   font-size: 13px;
 }
 
-/* HEADER */
 .header {
+  color: #888;
   font-weight: bold;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-/* INPUTS */
-.row input {
+/* ROW */
+.row {
+  margin-bottom: 6px;
+}
+
+.set-num {
+  text-align: center;
+  color: #aaa;
+}
+
+.locked {
+  background: #333;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;
+  color: #ccc;
+}
+
+.cell {
   width: 100%;
+  text-align: center;
   padding: 6px;
   border-radius: 6px;
   border: none;
-  text-align: center;
-}
-
-/* PREVIOUS BOX */
-.locked {
-  background: #3b1414;
-  padding: 6px;
-  border-radius: 6px;
-  text-align: center;
+  background: #2c2c2c;
+  color: white;
 }
 
 /* ACTIONS */
@@ -383,55 +334,56 @@ function deleteExercise(index) {
   justify-content: center;
 }
 
-/* CHECK BUTTON */
 .check {
   width: 26px;
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: #3b1414;
+  background: #333;
   color: white;
   cursor: pointer;
 }
 
 .check.done {
-  background: green;
+  background: #27ae60;
 }
 
-/* DELETE SET */
 .delete {
   width: 26px;
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: #2b0b0b;
-  color: white;
+  background: #333;
+  color: #e74c3c;
   cursor: pointer;
 }
 
-/* ADD SET */
-.add-set {
+/* BUTTONS */
+.add-set,
+.add-exercise {
   width: 100%;
-  margin-top: 12px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 12px;
   border-radius: 999px;
   border: none;
-  background: #e7bcbc;
-  color: #2a0f0f;
-  font-weight: 600;
+  background: linear-gradient(135deg, #8b0000, #c0392b);
+  color: white;
+  font-weight: bold;
   cursor: pointer;
 }
 
-/* ADD EXERCISE */
-.add-exercise {
+/* FINISH BUTTON */
+.finish-workout {
   width: 100%;
   margin-top: 10px;
   padding: 14px;
   border-radius: 999px;
   border: none;
-  background: #5b1f1f;
+
+  background: linear-gradient(135deg, #1f8f4a, #2ecc71);
   color: white;
-  font-weight: 700;
+
+  font-weight: bold;
   cursor: pointer;
 }
 </style>

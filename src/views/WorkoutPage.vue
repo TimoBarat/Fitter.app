@@ -1,23 +1,41 @@
 <template>
   <div class="page">
 
-    <!-- TOP HEADER -->
+    <!-- HEADER -->
     <header class="topbar">
-      <div class="profile-section">
+
+      <div class="header-left">
+
         <img
-          class="avatar"
-          src="https://i.pravatar.cc/100"
+          :src="assets.pfp"
           alt="Profile"
+          class="avatar"
+          @click="goProfile"
         />
 
-        <div class="streak">
-          <span>74</span>
-          <span class="fire">🔥</span>
+        <div class="streak-badge">
+          <span class="streak-number">75</span>
+
+          <img
+            :src="assets.flame"
+            alt="streak"
+            class="flame-icon"
+          />
         </div>
+
       </div>
+
+      <button class="settings-btn" @click="goSettings">
+        <img
+          :src="assets.settings"
+          alt="Settings"
+          class="settings-icon"
+        />
+      </button>
+
     </header>
 
-    <!-- MAIN CONTENT -->
+    <!-- CONTENT -->
     <main class="content">
 
       <!-- ROUTINES -->
@@ -28,16 +46,8 @@
           <span class="search-icon">⌕</span>
         </div>
 
-        <!-- START EMPTY -->
-        <button
-          class="main-btn"
-          @click="startEmptyWorkout"
-        >
-          Start Empty
-        </button>
-
-        <button class="main-btn">
-          Generate Workout
+        <button class="main-btn" @click="startEmptyWorkout">
+          Start Workout
         </button>
 
       </section>
@@ -47,11 +57,29 @@
 
         <h1>Past Workouts</h1>
 
-        <div class="workout-card">
+        <div
+          class="workout-card"
+          v-for="(workout, index) in workouts"
+          :key="workout.id"
+        >
 
           <div class="card-header">
-            <h2>Lower Body Routine</h2>
-            <span class="menu">⋮</span>
+            <h2>{{ workout.name }}</h2>
+
+            <div class="menu-wrapper">
+              <span class="menu" @click.stop="toggleMenu(index)">⋮</span>
+
+              <div v-if="openMenu === index" class="menu-overlay" @click.self="closeMenu">
+
+                <div class="menu-box">
+
+                  <button class="menu-item" @click="renameWorkout(index)"> Rename </button>
+
+                  <button class="menu-item danger" @click="deleteWorkout(index)"> Delete </button>
+                </div>
+
+              </div>
+            </div>
           </div>
 
           <p class="subtitle">
@@ -59,32 +87,19 @@
           </p>
 
           <div class="exercise-list">
-            <div class="exercise-pill">
-              Squat
-            </div>
-
-            <div class="exercise-pill">
-              Leg Press
-            </div>
-
-            <div class="exercise-pill">
-              Lunges
-            </div>
+            <div class="exercise-pill">Squat</div>
+            <div class="exercise-pill">Leg Press</div>
+            <div class="exercise-pill">Lunges</div>
           </div>
 
           <div class="card-footer">
-
             <span class="more-text">
               show 3 more exercises...
             </span>
 
-            <button
-              class="start-btn"
-              @click="startWorkout"
-            >
+            <button class="start-btn" @click="startWorkout">
               START
             </button>
-
           </div>
 
         </div>
@@ -93,181 +108,509 @@
 
     </main>
 
-    <!-- BOTTOM NAV -->
+    <!-- FOOTER -->
     <nav class="bottom-nav">
-      <div class="nav-item active">🏋</div>
-      <div class="nav-item" @click="goHome"> ⌂ </div>
-      <div class="nav-item">🍴</div>
-      <div class="nav-item">👤</div>
+
+      <button class="nav-tab nav-tab-active" @click="goWorkout">
+        <img :src="workoutImg" class="nav-icon" />
+      </button>
+
+      <button class="nav-tab" @click="goHome">
+        <img :src="homeImg" class="nav-icon" />
+      </button>
+
+      <button class="nav-tab" @click="goFood">
+        <img :src="foodImg" class="nav-icon" />
+      </button>
+
+      <button class="nav-tab" @click="goProfile">
+        <img :src="profileImg" class="nav-icon" />
+      </button>
+
     </nav>
 
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// START EMPTY
+// ASSETS
+import pfpImg from '@/assets/pfp.png'
+import flameImg from '@/assets/flame.png'
+import settingsImg from '@/assets/settings.png'
+
+import workoutImg from '@/assets/workout.png'
+import homeImg from '@/assets/home.png'
+import foodImg from '@/assets/food.png'
+import profileImg from '@/assets/profile.png'
+
+const assets = {
+  pfp: pfpImg,
+  flame: flameImg,
+  settings: settingsImg,
+}
+
+/* NAV */
+function goProfile() { router.push('/profile') }
+function goSettings() { router.push('/settings') }
+function goHome() { router.push('/home') }
+function goWorkout() { router.push('/workoutpage') }
+function goFood() { router.push('/nutrition') }
+
+/* WORKOUT ACTIONS */
 function startEmptyWorkout() {
-  router.push({
-    name: 'StartWorkout',
-    query: {
-      empty: 'true'
-    }
-  })
+  router.push({ name: 'StartWorkout', query: { empty: 'true' } })
 }
 
-// NORMAL WORKOUT
 function startWorkout() {
-  router.push({
-    name: 'StartWorkout'
-  })
+  router.push({ name: 'StartWorkout' })
 }
 
-function goHome() {
-  router.push({
-    name: 'Homepage'
-  })
+/* WORKOUT DATA */
+const workouts = ref([
+  { id: 1, name: 'Lower Body Routine' },
+  { id: 2, name: 'Push Day' },
+  { id: 3, name: 'Full Body' }
+])
+
+const openMenu = ref(null)
+
+function toggleMenu(index) {
+  openMenu.value = openMenu.value === index ? null : index
 }
+
+function closeMenu() {
+  openMenu.value = null
+}
+
+function renameWorkout(index) {
+  const newName = prompt('Rename workout:')
+  if (newName && newName.trim()) {
+    workouts.value[index].name = newName.trim()
+  }
+  closeMenu()
+}
+
+function deleteWorkout(index) {
+  workouts.value.splice(index, 1)
+  closeMenu()
+}
+
+
 </script>
 
+
 <style scoped>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 .page {
-  width: 100%;
-  min-height: 100vh;
-  background: #d7b2b2;
   display: flex;
   flex-direction: column;
+
+  height: 100dvh;
+  width: 100%;
+
+  background: #1a1a1a;
+
+  color: white;
+
+  font-family: 'Segoe UI', sans-serif;
+
+  overflow: hidden;
 }
 
+/* HEADER */
 .topbar {
-  background: #5b1f1f;
-  padding: 18px 20px;
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
-}
-
-.profile-section {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+
+  padding: 16px 20px 8px;
+
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
 }
 
 .avatar {
-  width: 54px;
-  height: 54px;
+  width: 42px;
+  height: 42px;
+
   border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid #c0392b;
 }
 
-.streak {
+.streak-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: white;
-  font-size: 24px;
-  font-weight: 700;
+
+  gap: 4px;
 }
 
+.streak-number {
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #fff;
+}
+
+.flame-icon {
+  width: 20px;
+  height: 20px;
+
+  object-fit: contain;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+
+  cursor: pointer;
+
+  padding: 4px;
+}
+
+.settings-icon {
+  width: 24px;
+  height: 24px;
+
+  object-fit: contain;
+
+  filter: invert(1) brightness(0.7);
+}
+
+/* CONTENT */
 .content {
   flex: 1;
+
   overflow-y: auto;
-  padding: 24px 20px 120px;
+
+  padding: 0 16px 120px;
+
+  scrollbar-width: none;
 }
 
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* SECTION */
 .section {
   margin-bottom: 34px;
 }
 
+/* SECTION HEADER */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* TITLES */
 .section h1 {
-  color: #5b1f1f;
-  font-size: 32px;
+  color: #e74c3c;
+
+  font-size: 30px;
+
   margin-bottom: 18px;
+
   font-family: Georgia, serif;
 }
 
+/* SEARCH */
 .search-icon {
   font-size: 28px;
-  color: #5b1f1f;
+
+  color: #e74c3c;
 }
 
+/* BUTTONS */
 .main-btn {
   width: 100%;
+
   border: none;
-  background: #5b1f1f;
-  color: #f0dada;
+
+  background: linear-gradient(
+    135deg,
+    #8b0000 0%,
+    #c0392b 100%
+  );
+
+  color: white;
+
   padding: 18px;
+
   border-radius: 999px;
+
   margin-bottom: 16px;
+
   font-size: 18px;
   font-weight: 600;
+
+  cursor: pointer;
 }
 
+/* WORKOUT CARD */
 .workout-card {
-  background: #6e2a2a;
+  background: #2a2a2a;
+
   border-radius: 28px;
+
   padding: 20px;
+
   margin-bottom: 24px;
+
   color: #f5dede;
 }
 
+/* CARD HEADER */
 .card-header {
-  display: flex;
-  justify-content: space-between;
-}
-
-.subtitle {
-  margin-top: 8px;
-  margin-bottom: 18px;
-}
-
-.exercise-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.exercise-pill {
-  background: #4f1b1b;
-  padding: 14px 18px;
-  border-radius: 999px;
-}
-
-.card-footer {
-  margin-top: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.card-header h2 {
+  font-size: 22px;
+}
+
+/* MENU */
+.menu {
+  font-size: 24px;
+}
+
+/* SUBTITLE */
+.subtitle {
+  margin-top: 8px;
+  margin-bottom: 18px;
+
+  color: #aaa;
+}
+
+/* EXERCISE LIST */
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.exercise-pill {
+  background: #1d1d1d;
+
+  padding: 14px 18px;
+
+  border-radius: 999px;
+
+  color: #f0dada;
+}
+
+/* FOOTER */
+.card-footer {
+  margin-top: 18px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* TEXT */
+.more-text {
+  color: #aaa;
+}
+
+/* START BTN */
 .start-btn {
   border: none;
-  background: #2d0d0d;
+
+  background: linear-gradient(
+    135deg,
+    #8b0000 0%,
+    #c0392b 100%
+  );
+
   color: white;
+
   width: 76px;
   height: 76px;
+
   border-radius: 50%;
+
+  font-weight: 700;
+
+  cursor: pointer;
 }
 
+/* BOTTOM NAV */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #5b1f1f;
   display: flex;
   justify-content: space-around;
-  padding: 16px 0;
+  align-items: center;
+
+  padding: 10px 0 20px;
+
+  background: linear-gradient(
+    180deg,
+    #1a1a1a 0%,
+    #e74c3c 100%
+  );
+
+  flex-shrink: 0;
+
+  border-top: 1px solid rgba(255,255,255,0.07);
+
+  position: fixed;
+  bottom: 0;
+
+  width: 100%;
 }
 
-.nav-item {
-  color: #f1dede;
-  font-size: 28px;
+/* NAV BTN */
+.nav-tab {
+  background: none;
+  border: none;
+
+  cursor: pointer;
+
+  padding: 8px 16px;
+
+  border-radius: 10px;
+
+  transition: background 0.15s;
+}
+
+.nav-tab:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* NAV ICON */
+.nav-icon {
+  width: 26px;
+  height: 26px;
+
+  object-fit: contain;
+
+  filter: invert(1) brightness(0.6);
+}
+
+/* ACTIVE */
+.nav-tab-active .nav-icon {
+  filter: invert(30%)
+  sepia(90%)
+  saturate(500%)
+  hue-rotate(330deg)
+  brightness(1.2);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 45px;
+  right: 10px;
+
+  width: 140px;
+
+  background: #2b2b2b;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 14px;
+
+  padding: 6px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+
+  z-index: 50;
+}
+
+/* ITEMS */
+.dropdown-item {
+  background: none;
+  border: none;
+
+  color: #eaeaea;
+
+  padding: 10px 10px;
+
+  text-align: left;
+
+  font-size: 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* DELETE STYLE */
+.dropdown-item.danger {
+  color: #ff4d4d;
+}
+
+.dropdown-item.danger:hover {
+  background: rgba(255, 77, 77, 0.12);
+}
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 999;
+}
+
+.menu-box {
+  position: absolute;
+  right: 30px;
+  top: 140px;
+
+  width: 140px;
+  background: #2b2b2b;
+
+  border-radius: 12px;
+  padding: 6px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item {
+  background: none;
+  border: none;
+
+  color: white;
+  padding: 10px;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.menu-item.danger {
+  color: #ff4d4d;
 }
 </style>

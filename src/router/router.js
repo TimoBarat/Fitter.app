@@ -13,6 +13,10 @@ const Workoutpage = () => import('../views/WorkoutPage.vue')
 const StartWorkout = () => import('../views/StartWorkoutView.vue')
 const Homepage = () => import('../views/Homepage.vue')
 const NutritionView = () => import('../views/NutritionView.vue')
+const ProfilePage = () => import('../views/ProfilePage.vue')
+const SettingsPage = () => import('../views/SettingsPage.vue')
+const MealsSelection = () => import('../views/MealsSelection.vue')
+const StreakPage = () => import('../views/StreakPage.vue')
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -23,6 +27,10 @@ const routes = [
   { path: '/startworkout', name: 'StartWorkout', component: StartWorkout },
   { path: '/home', name: 'Homepage', component: Homepage },
   { path: '/nutrition', name: 'NutritionPage', component: NutritionView },
+  { path: '/profile', name: 'Profile', component: ProfilePage},
+  { path: '/settings', name: 'Settings', component: SettingsPage},
+  { path: '/mealsselection', name: 'MealsSelection', component: MealsSelection },
+  { path: '/streak', name: 'Streak', component: StreakPage }
 ]
 
 const router = createRouter({
